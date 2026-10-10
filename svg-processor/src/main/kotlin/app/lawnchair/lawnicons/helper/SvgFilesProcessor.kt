@@ -44,6 +44,7 @@ object SvgFilesProcessor {
             // check first if source is a directory
             if (Files.isDirectory(sourceSvgPath)) {
                 Files.walkFileTree(sourceSvgPath, options, Int.MAX_VALUE, fileVisitor)
+                println(IconFitScaler.summary())
             } else {
                 println("source not a directory")
             }
@@ -95,6 +96,8 @@ object SvgFilesProcessor {
             } catch (e: DocumentException) {
                 throw RuntimeException(e)
             }
+            // Make the icon as big as it can be without the smallest mask, a circle, cutting it off.
+            IconFitScaler.scaleToFit(targetFile)
             createAdaptive(targetFile, bg)
         } else {
             println("Skipping file as its not svg " + svgSource.fileName)
@@ -119,14 +122,14 @@ object SvgFilesProcessor {
             .addAttribute("android:drawable", bgColor)
         root.addElement("foreground").addElement("layer-list").addElement("item")
             .addElement("inset")
-            .addAttribute("android:inset", "32%")
+            .addAttribute("android:inset", IconFitScaler.ADAPTIVE_INSET)
             .addAttribute(
                 "android:drawable",
                 "@drawable/" + FilenameUtils.getBaseName(foregroundXml),
             )
         root.addElement("monochrome").addElement("layer-list").addElement("item")
             .addElement("inset")
-            .addAttribute("android:inset", "28%")
+            .addAttribute("android:inset", IconFitScaler.ADAPTIVE_INSET)
             .addAttribute(
                 "android:drawable",
                 "@drawable/" + FilenameUtils.getBaseName(foregroundXml),
@@ -164,3 +167,4 @@ object SvgFilesProcessor {
         }
     }
 }
+
